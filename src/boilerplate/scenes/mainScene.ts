@@ -4,8 +4,10 @@
  * @license      Digitsensitive
  */
 
+import { Player } from "../objects/player";
+
 export class MainScene extends Phaser.Scene {
-  private phaserSprite: Phaser.GameObjects.Sprite;
+  private player: Player;
 
   constructor() {
     super({
@@ -14,10 +16,23 @@ export class MainScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image("logo", "./src/boilerplate/assets/phaser.png");
+    this.load.image("player", "./src/boilerplate/assets/kayak.png");
+  }
+
+  init(): void {
   }
 
   create(): void {
-    this.phaserSprite = this.add.sprite(400, 300, "logo");
+    this.player = new Player({
+      scene: this,
+      x: this.sys.canvas.width / 2,
+      y: this.sys.canvas.height / 2,
+      key: "player"
+    });
+  }
+
+  update(): void {
+    // update objects
+    this.player.update();
   }
 }
