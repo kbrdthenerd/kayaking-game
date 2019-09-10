@@ -27,6 +27,10 @@ export class Player extends Phaser.GameObjects.Image {
     this.scene.physics.world.enable(this);
     this.body.setSize(50, 100);
     this.physicsBody = this.body
+    this.physicsBody.setAllowDrag(true)
+    this.physicsBody.angularDrag = 2
+    this.physicsBody.setDragY(30)
+    this.physicsBody.setDragX(30)
   }
   private initImage(): void {
     this.setOrigin(0.5, 0.5);
@@ -35,12 +39,21 @@ export class Player extends Phaser.GameObjects.Image {
 
   private initInput(): void {
     this.cursors = this.scene.input.keyboard.createCursorKeys();
+    const spaceBar = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.cursors.right.on('down', () => { 
-      this.paddle('negative')
+      if(spaceBar.isDown) {
+        this.paddle('positive', 'backward')
+      } else {
+        this.paddle('negative', 'forward')
+      }
     })
 
     this.cursors.left.on('down', () => { 
-      this.paddle('positive')
+      if(spaceBar.isDown) {
+        this.paddle('negative', 'backward')
+      } else {
+        this.paddle('positive', 'forward')
+      }
     })
   }
 
@@ -48,18 +61,15 @@ export class Player extends Phaser.GameObjects.Image {
     // this.scene.physics.velocityFromRotation(this.physicsBody.rotation, 100, this.physicsBody.velocity)
   }
 
-  paddle (direction: String) {
+  paddle (angleChange: String, direction) {
     const changeInAngularVelocity = 5
     const maxAngluerVelocity = 15
-    if(direction === 'positive') {
+    if(angleChange === 'positive') {
       this.physicsBody.angularVelocity = Math.min(this.physicsBody.angularVelocity + changeInAngularVelocity, maxAngluerVelocity)
     } else {
       this.physicsBody.angularVelocity = Math.max(this.physicsBody.angularVelocity - changeInAngularVelocity, -maxAngluerVelocity)
     }
-    this.physicsBody.angularDrag = 2
-    this.physicsBody.setAllowDrag(true)
-    this.scene.physics.velocityFromAngle(this.physicsBody.rotation - 90, 50, this.physicsBody.velocity)
-    this.physicsBody.setDragY(30)
-    this.physicsBody.setDragX(30)
+    const angle = direction === 'forward' ? - 90 : 90
+    this.scene.physics.velocityFromAngle(this.physicsBody.rotation + angle, 50, this.physicsBody.velocity)
   }
 }
