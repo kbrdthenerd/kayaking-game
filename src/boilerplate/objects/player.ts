@@ -5,48 +5,61 @@
  * @license      Digitsensitive
  */
 
+
 export class Player extends Phaser.GameObjects.Image {
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  private walkingSpeed: number;
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys
+  private physicsBody: Phaser.Physics.Arcade.Body
+  private speed
 
   constructor(params) {
     super(params.scene, params.x, params.y, params.key);
     this.setDisplaySize(50, 100)
 
-    this.initVariables();
-    this.initImage();
-    this.initInput();
+    this.initPhysics()
+    this.initInput()
+    this.initImage()
 
     this.scene.add.existing(this);
   }
 
-  private initVariables(): void {
-    this.walkingSpeed = 5;
+  private initPhysics(): void {
+    this.speed = 0
+    this.scene.physics.world.enable(this);
+    this.body.setSize(50, 100);
+    this.physicsBody = this.body
   }
-
   private initImage(): void {
     this.setOrigin(0.5, 0.5);
+    console.log(this.originX)
   }
 
   private initInput(): void {
     this.cursors = this.scene.input.keyboard.createCursorKeys();
+    this.cursors.right.on('down', () => { 
+      this.paddle('negative')
+    })
+
+    this.cursors.left.on('down', () => { 
+      this.paddle('positive')
+    })
   }
 
   update(): void {
-    this.handleInput();
+    // this.scene.physics.velocityFromRotation(this.physicsBody.rotation, 100, this.physicsBody.velocity)
   }
 
-  private handleInput(): void {
-    if (this.cursors.right.isDown) {
-      this.x += this.walkingSpeed;
-      this.setFlipX(false);
-    } else if (this.cursors.left.isDown) {
-      this.x -= this.walkingSpeed;
-      this.setFlipX(true);
-    } else if (this.cursors.up.isDown) {
-      this.y -= this.walkingSpeed;
-    } else if (this.cursors.down.isDown) {
-      this.y += this.walkingSpeed;
+  paddle (direction: String) {
+    const changeInAngularVelocity = 5
+    const maxAngluerVelocity = 15
+    if(direction === 'positive') {
+      this.physicsBody.angularVelocity = Math.min(this.physicsBody.angularVelocity + changeInAngularVelocity, maxAngluerVelocity)
+    } else {
+      this.physicsBody.angularVelocity = Math.max(this.physicsBody.angularVelocity - changeInAngularVelocity, -maxAngluerVelocity)
     }
+    this.physicsBody.angularDrag = 2
+    this.physicsBody.setAllowDrag(true)
+    this.scene.physics.velocityFromAngle(this.physicsBody.rotation - 90, 50, this.physicsBody.velocity)
+    this.physicsBody.setDragY(30)
+    this.physicsBody.setDragX(30)
   }
 }

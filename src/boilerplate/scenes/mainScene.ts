@@ -11,7 +11,15 @@ export class MainScene extends Phaser.Scene {
 
   constructor() {
     super({
-      key: "MainScene"
+      key: "MainScene",
+      physics: {
+        arcade: {
+          gravity: {
+            x: 0,
+            y: 0
+          }
+        }
+      }
     });
   }
 
